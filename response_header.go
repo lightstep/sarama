@@ -15,8 +15,10 @@ func (r *responseHeader) decode(pd packetDecoder) (err error) {
 	if err != nil {
 		return err
 	}
-	if r.length <= 4 || r.length > MaxResponseSize {
-		return PacketDecodingError{fmt.Sprintf("message of length %d too large or too small", r.length)}
+	if r.length <= 4 {
+		// NOTE: We remove the check against MaxResponseSize here
+		// to resolve https://github.com/Shopify/sarama/issues/1370
+		return PacketDecodingError{fmt.Sprintf("message of length %d too small", r.length)}
 	}
 
 	r.correlationID, err = pd.getInt32()
